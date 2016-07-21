@@ -1,0 +1,38 @@
+<properties>
+
+	<!-- 
+		描述:初始化广告访问记录管理控制器AdViewRecodeController，并将所有关联的广告访问记录管理service注入到此控制器中。并以别名的形式定义好跳转页面。
+	    author:zouyaobin
+		CopyRight:福建长潮科技
+		版本:v1.0 
+	    Date: 2016-03-30 15:30:03
+	-->
+
+	<property name="/adsense/viewrecode/*.page"
+		path:index="/adsense/viewrecode/main.jsp"
+		path:queryListInfoAdViewRecodes="/adsense/viewrecode/adViewRecodeListInfo.jsp"
+		path:queryListAdViewRecodes="/adsense/viewrecode/adViewRecodeList.jsp"
+		path:updateAdViewRecode="/adsense/viewrecode/adViewRecodeEdit.jsp"
+		path:addAdViewRecode="/adsense/viewrecode/adViewRecodeAdd.jsp"
+		path:getAdViewRecode="/adsense/viewrecode/adViewRecodeView.jsp"
+		f:adViewRecodeService="attr:viewrecode.adViewRecodeService"
+		class="com.cckjcg.adsense.action.AdViewRecodeController" >
+	</property>
+		<property name="viewrecode.WSadViewRecodeService"
+		ws:servicePort="adViewRecodeService" 
+		hessian:servicePort="adViewRecodeService"
+		f:adViewRecodeService="attr:viewrecode.adViewRecodeService"
+		class="com.cckjcg.adsense.ws.WSAdViewRecodeServiceImpl" >
+	</property>
+		<property name="viewrecode.adViewRecodeService"
+		f:executor="attr:viewrecode.configsqlexecutor"
+		class="com.cckjcg.adsense.service.AdViewRecodeServiceImpl"
+		/>
+	<property name="viewrecode.configsqlexecutor"		
+		class="com.frameworkset.common.poolman.ConfigSQLExecutor" >
+		<construction>
+			<property value="com/cckjcg/adsense/service/adViewRecode.xml"/>
+		</construction>
+	</property>
+	
+</properties>

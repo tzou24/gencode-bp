@@ -1,0 +1,150 @@
+/**
+ *  Copyright 2008-2010 biaoping.yin
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
+ package $package;
+ 
+ #foreach($import in $imports)
+import $import;
+ #end
+/**
+ * <p>Title: $classname</p> 
+ * <p>Description: #if($description && !$description.equals(""))
+ 	$description
+ 	#else
+ 	${moduleCNName}管理
+ 	#if($iscondition)
+ 	查询条件类
+ 	#else
+ 	实体类
+ 	#end
+ 	#end</p>
+ * <p>$company</p>
+ * <p>Copyright (c) 2007</p>
+ * @Date $gendate
+ * @author $author
+ * @version $version 
+ */
+#set( $start = '(' )
+#set( $end = ')' )
+#set( $equal = '=' )
+#set( $attoken = '@' )
+#macro( writeanno $field)
+   #if($filed.annos && $filed.annos.size() > 0)
+     #foreach($anno in $filed.annos)
+     	$attoken$anno.name
+		  #if($anno.params.size() > 0)
+			  $start
+			  	#foreach($annoparam in $anno.params) 
+			  		#if($velocityCount>0),#end$annoparam.name$equal#if($annoparam.vtype == 1)"#end$annoparam.value#if($annoparam.vtype == 1)"#end
+			  	#end
+			  $end
+		  #end
+	  #end
+    #end
+#end
+#macro( getsetmethod $field $datarange)
+	#if(!$datarange)
+	    public void set$filed.mfieldName$start$filed.type $filed.fieldName$end
+		{
+			this.$filed.fieldName = $filed.fieldName;
+		}
+		
+		public $filed.type get$filed.mfieldName$start$end
+		{
+			return $filed.fieldName;
+		}
+	#else
+		public void set${filed.mfieldName}_start$start$filed.type ${filed.fieldName}_start$end
+		{
+			this.${filed.fieldName}_start = ${filed.fieldName}_start;
+		}
+		
+		public $filed.type get${filed.mfieldName}_start$start$end
+		{
+			return ${filed.fieldName}_start;
+		}
+		public void set${filed.mfieldName}_end$start$filed.type ${filed.fieldName}_end$end
+		{
+			this.${filed.fieldName}_end = ${filed.fieldName}_end;
+		}
+		
+		public $filed.type get${filed.mfieldName}_end$start$end
+		{
+			return ${filed.fieldName}_end;
+		}
+	#end	
+#end
+#macro( writedefaultValue $field)
+  #if($filed.defaultValue && !$filed.defaultValue.equals(""))$equal #if($filed.type.equals("String")) "$filed.defaultValue" #else $filed.defaultValue #end #end
+#end
+#macro( writefieldComment $field $daterange $isstart)
+  #if($filed.fieldComment && !$filed.fieldComment.equals(""))
+	  #if(!$daterange)
+	  /**  
+	  * $filed.fieldComment
+	  */
+	  #else
+	 	 #if($isstart)
+		  /**  
+		  * 查询开始时间：$filed.fieldComment
+		  */
+		  #else
+		  /**  
+		  * 查询结束时间：$filed.fieldComment
+		  */	
+		  #end 	
+	  #end  
+  #end
+#end
+public class $classname implements java.io.Serializable
+{
+#foreach($filed in $fields)	
+	#if(!$iscondition)
+		#writefieldComment($filed false false)
+	    #writeanno($filed)
+		private $filed.type $filed.fieldName  #writedefaultValue($filed);	
+	#else
+		#if(!$filed.daterange)
+		   #writefieldComment($filed false false)
+		   #writeanno($filed)
+			private $filed.type $filed.fieldName ;
+		#else
+			#writefieldComment($filed true true)
+			#writeanno($filed)
+			private $filed.type ${filed.fieldName}_start ;
+			#writefieldComment($filed true false)
+			#writeanno($filed)
+			private $filed.type ${filed.fieldName}_end ;
+		#end	
+	#end	
+#end
+	public $classname$start$end
+	{
+	}
+#foreach($filed in $fields)	
+	#if(!$iscondition)
+	   #getsetmethod($filed false)
+	#else
+		#if(!$filed.daterange)
+		  #getsetmethod($filed false)
+		#else
+			#getsetmethod($filed true)		 
+			
+		#end	
+	#end	
+	
+#end
+}

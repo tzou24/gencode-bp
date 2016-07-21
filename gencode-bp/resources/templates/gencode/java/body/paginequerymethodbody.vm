@@ -1,0 +1,82 @@
+#set( $start = '(' )
+#set( $end = ')' )
+#set( $dot = '.' )
+#if($componentType == 1)
+ListInfo datas=null;
+try{
+#if(!$pagineWithDBRownumberOver)
+	datas=executor.queryListInfoBean#if($dbname)WithDBName${start}$entityName${dot}class, "$dbname",#else${start}$entityName${dot}class, #end"queryList$entityName", offset, pagesize #if($needcondition),conditions#else,null#end);
+#else
+	datas=executor.queryListInfoBean#if($dbname)WithDBName${start}$entityName${dot}class, "$dbname",#else${start}$entityName${dot}class, #end"queryPagine$entityName", offset, pagesize #if($needcondition),new ConfigPagineOrderby("${entityName}Orderby",conditions)#else,new ConfigPagineOrderby("${entityName}Orderby",null)#end);
+#end	
+}catch(Exception e){
+	throw new  $exception$start"pagine query $entityName failed:",e$end;
+}
+return datas;
+#elseif($componentType == 2)//Constant.component_type_actionimpl
+try {
+	#if($needcondition)
+		#if($needsort)
+		    if(sortKey != null && !sortKey.equals(""))
+		    {
+		    	conditions.setSortKey(sortKey);
+		    	conditions.setSortDesc(desc);
+		    }
+		#end
+	    #if($conditionFields && $conditionFields.size() > 0)
+	    	#foreach($cf in $conditionFields)
+	    		#if($cf.like)
+	    		     $cf.type $cf.fieldName = conditions.get$cf.mfieldName$start$end;
+	    		     if(${cf.fieldName} != null && !${cf.fieldName}.equals(""))
+	    		     {
+	    		     	conditions.set$cf.mfieldName$start"%"+$cf.fieldName+"%"$end;
+	    		     }
+	    		#end
+	    	#end
+		#end
+	#else
+		#if($needsort)
+			$conditionEntityName conditions = null;
+		    if(sortKey != null && !sortKey.equals(""))
+		    {
+		    	conditions = new $conditionEntityName$start$end;
+		    	conditions.setSortKey(sortKey);
+		    	conditions.setSortDesc(desc);
+		    }
+		#end
+	#end
+		    
+	ListInfo ${entityVarName}s = ${entityVarName}Service.queryListInfo${entityName}s(#if($needcondition || $needsort)conditions,#end offset,pagesize);
+	model.addAttribute("${entityVarName}s", ${entityVarName}s);
+	return "path:queryListInfo${entityName}s";
+} catch ($exception e) {
+	throw e;
+} catch (Exception e) {
+	throw new $exception("pagine query ${entityName} failed:", e);
+}
+#elseif($componentType == 5)//webservice服务
+try {
+	#if($needcondition)
+		
+	    #if($conditionFields && $conditionFields.size() > 0)
+	    	#foreach($cf in $conditionFields)
+	    		#if($cf.like)
+	    		     $cf.type $cf.fieldName = conditions.get$cf.mfieldName$start$end;
+	    		     if(${cf.fieldName} != null && !${cf.fieldName}.equals(""))
+	    		     {
+	    		     	conditions.set$cf.mfieldName$start"%"+$cf.fieldName+"%"$end;
+	    		     }
+	    		#end
+	    	#end
+		#end
+	#end
+	ListInfo ${entityVarName}s = ${entityVarName}Service.queryListInfo${entityName}s(#if($needcondition || $needsort)conditions,#end offset,pagesize);
+	return new RListInfo(${entityVarName}s);
+}
+ catch ($exception e) {
+	throw e;
+}
+ catch (Throwable e) {
+	throw new  $exception$start"pagine query $entityName failed:",e$end;
+}
+#end
